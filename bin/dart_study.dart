@@ -1,5 +1,5 @@
-import 'package:dart_study/dart_study.dart' as dart_study;
+import 'package:dart_study/utils.dart';
 
 void main(List<String> arguments) {
-  print('Hello world: ${dart_study.calculate()}!');
+  print(readableBytes(1024 * 1024 * 12));
 }
