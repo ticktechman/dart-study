@@ -29,7 +29,7 @@ class RandomFile {
     int blocksize = 1 * MB;
     var blob = RandomBlob(size: blocksize);
     int count = (size / blocksize).floor();
-    print(count);
+
     for (int i = 0; i < count; i++) {
       sink.add(blob.blob);
       await sink.flush();
@@ -53,14 +53,16 @@ class FileNameGenerator {
 class DiskFiller {
   DiskFiller({required this.path, required this.fillsize});
 
-  int fill() {
+  Future<int> fill() async {
     int size = fillsize;
-    while (!isStop && size >= 0) {
+    while (!isStop && size > 0) {
+      print(size);
       if (size >= GB) {
-        RandomFile.generate(FileNameGenerator.next("dc"), size: GB);
+        await RandomFile.generate(FileNameGenerator.next(path + "/dc"), size: GB);
         size -= GB;
       } else {
-        RandomFile.generate(FileNameGenerator.next("dc"), size: size);
+        await RandomFile.generate(FileNameGenerator.next(path + "/dc"), size: size);
+        size -= size;
       }
     }
     return 0;
@@ -76,5 +78,6 @@ class DiskFiller {
 }
 
 void main() async {
-  RandomFile.generate(FileNameGenerator.next("dc"), size: MB);
+  var df = DiskFiller(path: 'data', fillsize: GB + MB);
+  await df.fill();
 }
