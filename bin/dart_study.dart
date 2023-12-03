@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:math';
+import 'package:async/async.dart';
 
 const int KB = 1024;
 const int MB = 1024 * KB;
@@ -55,8 +56,8 @@ class DiskFiller {
 
   Future<int> fill() async {
     int size = fillsize;
+    await Directory(path).create(recursive: true);
     while (!isStop && size > 0) {
-      print(size);
       if (size >= GB) {
         await RandomFile.generate(FileNameGenerator.next(path + "/dc"), size: GB);
         size -= GB;
@@ -78,6 +79,10 @@ class DiskFiller {
 }
 
 void main() async {
-  var df = DiskFiller(path: 'data', fillsize: GB + MB);
-  await df.fill();
+  var df = DiskFiller(path: '.data', fillsize: GB + MB);
+  var cancel = CancelableOperation.fromFuture(df.fill(), onCancel: () {
+    print('cancalled');
+  });
+  sleep(Duration(seconds: 2));
+  cancel.cancel();
 }
